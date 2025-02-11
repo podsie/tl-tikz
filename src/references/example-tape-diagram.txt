@@ -1,0 +1,38 @@
+\documentclass{IM}
+\begin{document}
+
+%%%%%%% With values
+
+\begin{tikzpicture}[x=1in,y=1in]
+\clip (-\TFP*.3,-.4) rectangle (\TFP*.7,.4);
+
+\def\topparts{2}
+\def\bottomparts{7}
+\def\partvalue{20}
+\def\toplabel{number of adults}
+\def\bottomlabel{number of kids}
+
+%%Top
+\begin{scope}[yshift=.0625 in]
+
+    \filldraw [Yellow] (0,0) rectangle (\topparts*.4,.25);
+    \foreach \top in {1,...,\topparts}{
+        \draw [fill=LBlue](\top*.4-.4,0) rectangle node {\partvalue} (\top*.4,.25);}
+    \node[anchor=east]at(-.125,.125){\toplabel};
+
+\end{scope}
+
+%%Bottom
+\begin{scope}[yscale=-1]
+\begin{scope}[yshift=.0625 in]
+%\filldraw [LGreen] (0,0) rectangle (\bottomparts*.4,.25);
+    \foreach \bottom in {1,...,\bottomparts}{
+        \draw (\bottom*.4-.4,0) rectangle node {\partvalue} (\bottom*.4,.25);}
+    \node[anchor=east]at(-.125,.125){\bottomlabel};
+\end{scope}
+\end{scope}
+
+\draw[line width=1pt,decorate,decoration={brace,amplitude=6pt}] (2.925,.325in) -- node[right=6pt] {\small{180}} (2.925,-.325in);
+
+\end{tikzpicture}
+\end{document}

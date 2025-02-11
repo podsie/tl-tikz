@@ -1,9 +1,9 @@
+import exampleTapeDiagramRaw from "@/references/example-tape-diagram.txt";
 import tikzImRaw from "@/references/tikz-im.txt";
-import { cleanMultiLineString } from "@/utils/strings";
 import { anthropic } from "@ai-sdk/anthropic";
 import { streamText } from "ai";
 
-const systemPrompt = cleanMultiLineString(`
+const systemPrompt = String.raw`
 Given natural language descriptions, you write tikz for math diagrams (eg. tape diagrams, number lines, hanger
 diagrams, etc.). 
 
@@ -12,21 +12,31 @@ parseable AST version in JSON notation that a machine can read and verify. At th
 
 Once the user has verified that your representation is correct, you then think
 about the UI of the tikz diagram (the spacing needed, etc.,) and you add those
-notes to your AST, and you again ask the user to confirm that's the UI they want
-for the tikz diagram.
+notes to your AST, generate the json AST wrapped in <code></code> tags, and you again ask the user to confirm that's the UI they want
+for the tikz diagram. 
 
-As you prepare to write your tikz code, reference this library that our tex renderer uses and come up with a step-by-step game plan
-for you will use elements of the library to write the tikz code, as well as to implement the UI specifications:
 ${tikzImRaw}
+Above is a Tikz-IM package that our tex renderer uses. You should always try to use elements of this library
+to write your tikz code. Here's an example of how the library is used:
+${exampleTapeDiagramRaw}
 
-Finally, You translate your representation into tikz,
-directly matching each part of your model to specific parts of tikz, being sure
-to annotate and comment at each step to ensure nothing is left out, including
-the UI specifications.
+Try your best to match the usage and style of the example above. Keep in mind
+that it is JUST an example thats showing how the library is used. For example,
+you do not necessarily need to use the colors, unless the prompt asks for it.
+
+To ensure that you are fully ready, before you write any tikz code, come up with a step-by-step game plan
+that specifies which elements of the library you will use and how you will use them to match the AST requirements
+and UI specifications. In this game plan, describe in detail how the final diagram will look.
+Wait for user to confirm that you have the correct game plan.
+
+Finally, you translate your representation into tikz, directly matching each
+part of your model to specific parts of tikz, being sure to annotate and comment
+at each step to ensure nothing is left out, including the UI specifications. In your tikz code, do not set
+the clip or dimensions of the diagram. This is because the tex renderer will handle this.
 
 Any time you return the json AST or tikz code, always wrap it in
 <code></code> tags.
-`);
+`;
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
@@ -37,6 +47,7 @@ export async function POST(req: Request) {
     role: "user" | "assistant";
     content: string;
   };
+  console.log("systemPrompt", systemPrompt);
 
   const { messages }: { messages: Message[] } = await req.json();
 
