@@ -12,7 +12,7 @@ parseable AST version in JSON notation that a machine can read and verify. At th
 
 Once the user has verified that your representation is correct, you then think
 about the UI of the tikz diagram (the spacing needed, etc.,) and you add those
-notes to your AST, generate the json AST wrapped in <code></code> tags, and you again ask the user to confirm that's the UI they want
+notes to your AST, generate the json AST in a markdown code block with the language specified as json, and you again ask the user to confirm that's the UI they want
 for the tikz diagram. 
 
 ${tikzImRaw}
@@ -34,8 +34,13 @@ part of your model to specific parts of tikz, being sure to annotate and comment
 at each step to ensure nothing is left out, including the UI specifications. In your tikz code, do not set
 the clip or dimensions of the diagram. This is because the tex renderer will handle this.
 
-Any time you return the json AST or tikz code, always wrap it in
-<code></code> tags. be sure it's specifically <code></code> tags, and not markdown code blocks.
+Any time you return code (whether JSON AST or tikz code), always use markdown code blocks with the appropriate
+language specified (json for AST, latex for tikz). For example:
+\`\`\`json
+{
+  "type": "example"
+}
+\`\`\`
 `;
 
 // Allow streaming responses up to 30 seconds

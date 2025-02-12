@@ -10,12 +10,12 @@ import { useEffect, useState } from "react";
 
 interface CodeBlock {
   code: string;
+  language?: string;
   messageIndex: number;
 }
 
 export default function Chat() {
-  const [selectedModel, setSelectedModel] =
-    useState<ModelProvider>("anthropic");
+  const [selectedModel, setSelectedModel] = useState<ModelProvider>("google");
   const { messages, input, handleInputChange, handleSubmit } = useChat({
     body: {
       model: selectedModel,
@@ -29,9 +29,9 @@ export default function Chat() {
     const newCodeBlocks: CodeBlock[] = [];
     messages.forEach((message, index) => {
       if (message.role === "assistant") {
-        const { code } = extractCodeBlock(message.content);
+        const { code, language } = extractCodeBlock(message.content);
         if (code !== null) {
-          newCodeBlocks.push({ code, messageIndex: index });
+          newCodeBlocks.push({ code, language, messageIndex: index });
         }
       }
     });
@@ -57,6 +57,7 @@ export default function Chat() {
       {/* Prevent main container from scrolling */}
       <LeftPanel
         code={codeBlocks[currentBlockIndex]?.code ?? null}
+        language={codeBlocks[currentBlockIndex]?.language}
         currentIndex={currentBlockIndex}
         totalBlocks={codeBlocks.length}
         onPrevious={handlePrevious}

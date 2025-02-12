@@ -2,16 +2,17 @@ interface CodeBlockInfo {
   code: string | null;
   displayText: string;
   isGeneratingCode: boolean;
+  language?: string;
 }
 
 export function extractCodeBlock(content: string): CodeBlockInfo {
-  // Handle incomplete code tags during streaming
-  const openTagCount = (content.match(/<code>/g) || []).length;
-  const closeTagCount = (content.match(/<\/code>/g) || []).length;
+  // Handle incomplete code blocks during streaming
+  const codeBlockRegex = /```(\w+)?\n([\s\S]*?)```/;
+  const openingBackticks = (content.match(/```/g) || []).length;
 
-  // If we have an opening tag but no closing tag yet, we're generating code
-  if (openTagCount > closeTagCount) {
-    const parts = content.split("<code>");
+  // If we have an odd number of backtick groups, we're still generating code
+  if (openingBackticks % 2 !== 0) {
+    const parts = content.split("```");
     return {
       code: null,
       displayText: parts[0] + "\n[Loading code...]\n" + (parts[1] || ""),
@@ -19,7 +20,7 @@ export function extractCodeBlock(content: string): CodeBlockInfo {
     };
   }
 
-  const codeMatch = content.match(/<code>([\s\S]*?)<\/code>/);
+  const codeMatch = content.match(codeBlockRegex);
 
   if (!codeMatch) {
     return {
@@ -31,12 +32,13 @@ export function extractCodeBlock(content: string): CodeBlockInfo {
 
   // For display purposes only, show a completion message
   const displayText = content.replace(
-    /<code>[\s\S]*?<\/code>/g,
+    /```(\w+)?\n[\s\S]*?```/g,
     "\n[Code generated]\n"
   );
 
   return {
-    code: codeMatch[1].trim(),
+    code: codeMatch[2].trim(),
+    language: codeMatch[1] || undefined,
     displayText: displayText.replace(/\n{3,}/g, "\n\n").trim(),
     isGeneratingCode: false,
   };

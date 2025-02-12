@@ -7,11 +7,13 @@ interface ChatMessageProps {
 }
 
 export function ChatMessage({ message }: ChatMessageProps) {
-  const { code, isGeneratingCode } = extractCodeBlock(message.content);
+  const { code, isGeneratingCode, language } = extractCodeBlock(
+    message.content
+  );
   const [isCodeExpanded, setIsCodeExpanded] = useState(false);
 
   // Split content into parts before and after code block
-  const parts = message.content.split(/<code>|<\/code>/);
+  const parts = message.content.split(/```(\w+)?\n|```/);
 
   return (
     <div
@@ -41,7 +43,8 @@ export function ChatMessage({ message }: ChatMessageProps) {
                 onClick={() => setIsCodeExpanded(!isCodeExpanded)}
               >
                 <span className="text-sm text-zinc-500">
-                  {isCodeExpanded ? "Hide" : "Show"} generated code
+                  {isCodeExpanded ? "Hide" : "Show"} {language || "generated"}{" "}
+                  code
                 </span>
                 <span className="text-xs text-zinc-400">
                   {isCodeExpanded ? "▼" : "▶"}
@@ -57,7 +60,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
         )}
 
         {/* Text after code */}
-        {parts[2]}
+        {parts[3]}
       </div>
     </div>
   );
