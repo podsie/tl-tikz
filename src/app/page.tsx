@@ -4,6 +4,7 @@ import { ChatInput } from "@/components/chat/ChatInput";
 import { ChatMessages } from "@/components/chat/ChatMessages";
 import { LeftPanel } from "@/components/chat/LeftPanel";
 import { extractCodeBlock } from "@/utils/messages";
+import { ModelProvider } from "@/utils/modelProviders";
 import { useChat } from "@ai-sdk/react";
 import { useEffect, useState } from "react";
 
@@ -13,7 +14,13 @@ interface CodeBlock {
 }
 
 export default function Chat() {
-  const { messages, input, handleInputChange, handleSubmit } = useChat();
+  const [selectedModel, setSelectedModel] =
+    useState<ModelProvider>("anthropic");
+  const { messages, input, handleInputChange, handleSubmit } = useChat({
+    body: {
+      model: selectedModel,
+    },
+  });
   const [codeBlocks, setCodeBlocks] = useState<CodeBlock[]>([]);
   const [currentBlockIndex, setCurrentBlockIndex] = useState(0);
 
@@ -69,6 +76,8 @@ export default function Chat() {
             input={input}
             handleInputChange={handleInputChange}
             handleSubmit={handleSubmit}
+            selectedModel={selectedModel}
+            setSelectedModel={setSelectedModel}
           />
         </div>
       </div>

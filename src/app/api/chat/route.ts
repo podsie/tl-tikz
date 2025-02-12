@@ -1,6 +1,6 @@
 import exampleTapeDiagramRaw from "@/references/example-tape-diagram.txt";
 import tikzImRaw from "@/references/tikz-im.txt";
-import { anthropic } from "@ai-sdk/anthropic";
+import { modelConfigs, type ModelProvider } from "@/utils/modelProviders";
 import { streamText } from "ai";
 
 const systemPrompt = String.raw`
@@ -35,25 +35,26 @@ at each step to ensure nothing is left out, including the UI specifications. In 
 the clip or dimensions of the diagram. This is because the tex renderer will handle this.
 
 Any time you return the json AST or tikz code, always wrap it in
-<code></code> tags.
+<code></code> tags. be sure it's specifically <code></code> tags, and not markdown code blocks.
 `;
 
 // Allow streaming responses up to 30 seconds
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
-  // Type the messages array properly
   type Message = {
     role: "user" | "assistant";
     content: string;
   };
-  console.log("systemPrompt", systemPrompt);
 
-  const { messages }: { messages: Message[] } = await req.json();
+  const { messages, model }: { messages: Message[]; model: ModelProvider } =
+    await req.json();
+  const config = modelConfigs[model];
 
   const result = streamText({
-    model: anthropic("claude-3-5-sonnet-latest"),
+    model: config.provider(config.model),
     system: systemPrompt,
+    temperature: 0,
     messages,
   });
 
